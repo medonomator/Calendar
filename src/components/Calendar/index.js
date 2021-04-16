@@ -6,6 +6,8 @@ import { customChunk, getRandomString } from "../../helpers";
 import LeftArrow from "../../assets/svg/left-arrow.svg";
 import RightArrow from "../../assets/svg/right-arrow.svg";
 
+const MAX_NUMBER_DESKTOP = 35
+
 const Calendar = () => {
   const [currentMonth, setMonth] = useState(months[new Date().getMonth()]);
   const [currentMonthNumber, setMonthNumber] = useState(new Date().getMonth());
@@ -48,7 +50,7 @@ const Calendar = () => {
             i * -1
           ).getDate();
 
-          if (array.length < 35) {
+          if (array.length < MAX_NUMBER_DESKTOP) {
             array.unshift({
               number: day,
               checked: false,
@@ -58,7 +60,7 @@ const Calendar = () => {
           }
         }
 
-        if (array.length < 35) {
+        if (array.length < MAX_NUMBER_DESKTOP) {
           const count = 35 - array.length;
           for (let i = 0; i < count; i++) {
             array.push({
