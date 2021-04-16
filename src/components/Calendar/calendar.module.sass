@@ -1,0 +1,71 @@
+.main
+  display: flex
+  width: 750px
+  margin-top: 50px
+  flex-direction: column
+  font-family: Gilroy
+
+  .monthYear 
+    font-size: 22px
+    color: #364860
+
+.top
+  display: flex;
+  align-items: center
+  justify-content: space-between
+  flex: 1
+
+.weeks
+  margin-top: 25px
+  margin-bottom: 25px
+  color: #364860
+
+.numbers
+  display: flex
+  justify-content: space-between
+  color: #364860
+  text-align: center
+  position: relative
+
+.day
+  margin-bottom: 20px
+  cursor: pointer
+  // transition: all .3s ease
+  padding: 11px
+
+  position: relative
+  &:hover
+    color: white
+    &::before
+      position: absolute
+      content: ''
+      top: -5px
+      left: -2px
+      border-radius: 5em
+      z-index: -1
+      background: #dedede
+      width: 45px
+      height: 45px
+
+.dayChecked
+  margin-bottom: 20px
+  cursor: pointer
+  // transition: all .3s ease
+  padding: 11px
+  position: relative
+  color: white
+
+  &::before
+    position: absolute
+    content: ''
+    top: -5px
+    left: -2px
+    border-radius: 5em
+    z-index: -1
+    background: #364860
+    width: 45px
+    height: 45px
+
+.arrow
+  cursor: pointer
+ 
