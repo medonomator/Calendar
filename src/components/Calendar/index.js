@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import styles from "./calendar.module.sass";
 import { months, weeks } from "./data";
 import { customChunk, getRandomString } from "../../helpers";
+import { throttle } from "lodash";
 
 import LeftArrow from "../../assets/svg/left-arrow.svg";
 import RightArrow from "../../assets/svg/right-arrow.svg";
+import "./animation.css";
 
-const MAX_NUMBER_DESKTOP = 35
+const MAX_NUMBER_DESKTOP = 35;
 
 const Calendar = () => {
   const [currentMonth, setMonth] = useState(months[new Date().getMonth()]);
@@ -59,17 +61,17 @@ const Calendar = () => {
             });
           }
         }
+      }
 
-        if (array.length < MAX_NUMBER_DESKTOP) {
-          const count = 35 - array.length;
-          for (let i = 0; i < count; i++) {
-            array.push({
-              number: i + 1,
-              checked: false,
-              active: false,
-              id: getRandomString(),
-            });
-          }
+      if (array.length < MAX_NUMBER_DESKTOP) {
+        const count = MAX_NUMBER_DESKTOP - array.length;
+        for (let i = 0; i < count; i++) {
+          array.push({
+            number: i + 1,
+            checked: false,
+            active: false,
+            id: getRandomString(),
+          });
         }
       }
 
@@ -78,36 +80,66 @@ const Calendar = () => {
   });
 
   const setPrevMonth = (e) => {
-    const numbers = e.target.parentElement.parentElement.children[1];
+    defineLeapYear();
 
-    if (currentMonthNumber > 0) {
-      const prevMonthNumber = currentMonthNumber - 1;
-      setMonthNumber(prevMonthNumber);
-      setMonth(months[prevMonthNumber]);
-      setFirstDayInMonth(null);
-      pushArrayOfDays([]);
-    } else {
-      const prevMonthNumber = 11;
-      setMonthNumber(prevMonthNumber);
-      setMonth(months[prevMonthNumber]);
-      setFirstDayInMonth(null);
-      pushArrayOfDays([]);
-    }
+    const numbers = e.target.parentElement.parentElement.children[1];
+    const oldStyle = numbers.className.replace("calendar-render", "");
+
+    numbers.className += " right-transit";
+
+    setTimeout(() => {
+      if (currentMonthNumber > 0) {
+        const prevMonthNumber = currentMonthNumber - 1;
+        setMonthNumber(prevMonthNumber);
+        setMonth(months[prevMonthNumber]);
+        setFirstDayInMonth(null);
+        pushArrayOfDays([]);
+      } else {
+        const prevMonthNumber = 11;
+        setMonthNumber(prevMonthNumber);
+        setMonth(months[prevMonthNumber]);
+        setFirstDayInMonth(null);
+        pushArrayOfDays([]);
+        setYear(yearNumber - 1);
+      }
+
+      numbers.className = oldStyle;
+    }, 200);
   };
 
-  const setNextMonth = () => {
-    if (currentMonthNumber < 11) {
-      const nextMonthNumber = currentMonthNumber + 1;
-      setMonthNumber(nextMonthNumber);
-      setMonth(months[nextMonthNumber]);
-      setFirstDayInMonth(null);
-      pushArrayOfDays([]);
-    } else {
-      const nextMonthNumber = 0;
-      setMonthNumber(nextMonthNumber);
-      setMonth(months[nextMonthNumber]);
-      setFirstDayInMonth(null);
-      pushArrayOfDays([]);
+  const setNextMonth = (e) => {
+    defineLeapYear();
+
+    const numbers = e.target.parentElement.parentElement.children[1];
+    const oldStyle = numbers.className;
+
+    numbers.className += " left-transit";
+
+    if (numbers.className !== oldStyle)
+      setTimeout(() => {
+        if (currentMonthNumber < 11) {
+          const nextMonthNumber = currentMonthNumber + 1;
+          setMonthNumber(nextMonthNumber);
+          setMonth(months[nextMonthNumber]);
+          setFirstDayInMonth(null);
+          pushArrayOfDays([]);
+        } else {
+          const nextMonthNumber = 0;
+          setMonthNumber(nextMonthNumber);
+          setMonth(months[nextMonthNumber]);
+          setFirstDayInMonth(null);
+          pushArrayOfDays([]);
+          setYear(yearNumber + 1);
+        }
+
+        numbers.className = oldStyle;
+      }, 200);
+  };
+
+  const defineLeapYear = () => {
+    if (currentMonth.name === "February" && yearNumber % 4 === 0) {
+      console.log(currentMonth);
+      // TODO: change count day
     }
   };
 
@@ -124,14 +156,12 @@ const Calendar = () => {
     pushArrayOfDays(array);
   };
 
-  console.log(customChunk(arrayOfDays));
-
   return (
     <div className={styles.main}>
       <div className={styles.top}>
         <img
           className={styles.arrow}
-          onClick={setPrevMonth}
+          onClick={throttle(setPrevMonth, 10000)}
           src={LeftArrow}
           alt="left-arrow"
         />
@@ -140,7 +170,7 @@ const Calendar = () => {
         </div>
         <img
           className={styles.arrow}
-          onClick={setNextMonth}
+          onClick={throttle(setNextMonth, 10000)}
           src={RightArrow}
           alt="right-arrow"
         />
@@ -149,13 +179,13 @@ const Calendar = () => {
       <div className={styles.numbers}>
         {customChunk(arrayOfDays).map((item, index) => {
           return (
-            <div>
+            <div key={index}>
               <div className={styles.weeks}>{weeks[index]}</div>
               <div>
                 {item.map((item2, index2) => {
                   return (
                     <div
-                      // style={{ color: item2.active ? "#364860" : "#a0a0a0" }}
+                      style={{ color: item2.active ? "#364860" : "red" }}
                       className={item2.checked ? styles.dayChecked : styles.day}
                       data-id={item2.id}
                       onClick={toggleItem}
