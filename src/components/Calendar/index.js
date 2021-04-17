@@ -16,14 +16,14 @@ const Calendar = () => {
   const [yearNumber, setYear] = useState(new Date().getFullYear());
   const [firstDayInMonth, setFirstDayInMonth] = useState(null);
   const [arrayOfDays, pushArrayOfDays] = useState([]);
+  // calculate pannel data
+  const [successRate, changeSuccessRate] = useState(0);
+  const [countDayMet, setCountDayMet] = useState(0);
 
   useEffect(() => {
-    let makeFirstDay = false;
-
     if (!firstDayInMonth) {
       const firstDay = new Date(yearNumber, currentMonthNumber, 0).getDay();
       setFirstDayInMonth(firstDay);
-      makeFirstDay = true;
     }
 
     if (!arrayOfDays.length) {
@@ -38,28 +38,22 @@ const Calendar = () => {
         });
       }
 
-      if (makeFirstDay) {
-        const firstDayInMonth = new Date(
-          yearNumber,
-          currentMonthNumber,
-          0
-        ).getDay();
+      const firstDayInMonth = new Date(
+        yearNumber,
+        currentMonthNumber,
+        0
+      ).getDay();
 
-        for (let i = 0; i < firstDayInMonth; i++) {
-          const day = new Date(
-            yearNumber,
-            currentMonthNumber,
-            i * -1
-          ).getDate();
+      for (let i = 0; i < firstDayInMonth; i++) {
+        const day = new Date(yearNumber, currentMonthNumber, i * -1).getDate();
 
-          if (array.length < MAX_NUMBER_DESKTOP) {
-            array.unshift({
-              number: day,
-              checked: false,
-              active: false,
-              id: getRandomString(),
-            });
-          }
+        if (array.length < MAX_NUMBER_DESKTOP) {
+          array.unshift({
+            number: day,
+            checked: false,
+            active: false,
+            id: getRandomString(),
+          });
         }
       }
 
@@ -81,6 +75,8 @@ const Calendar = () => {
 
   const setPrevMonth = (e) => {
     defineLeapYear();
+    changeSuccessRate(0);
+    setCountDayMet(0);
 
     const numbers = e.target.parentElement.parentElement.children[1];
     const oldStyle = numbers.className.replace("calendar-render", "");
@@ -109,6 +105,8 @@ const Calendar = () => {
 
   const setNextMonth = (e) => {
     defineLeapYear();
+    changeSuccessRate(0);
+    setCountDayMet(0);
 
     const numbers = e.target.parentElement.parentElement.children[1];
     const oldStyle = numbers.className;
@@ -147,10 +145,22 @@ const Calendar = () => {
     const key = e.target.attributes.getNamedItem("data-id").value;
     const array = [...arrayOfDays];
 
+    const onlyCurrentMonthDay = array.filter((item) => item.active);
+    let accum = 0;
+
     array.forEach((item) => {
       if (item.id === key) {
         item.checked = !item.checked;
       }
+
+      if (item.active && item.checked) {
+        accum++;
+      }
+
+      setCountDayMet(accum);
+
+      const rate = Math.ceil((accum * 100) / onlyCurrentMonthDay.length);
+      changeSuccessRate(rate);
     });
 
     pushArrayOfDays(array);
@@ -185,7 +195,7 @@ const Calendar = () => {
                 {item.map((item2, index2) => {
                   return (
                     <div
-                      style={{ color: item2.active ? "#364860" : "red" }}
+                      style={{ color: !item2.active && "#999999" }}
                       className={item2.checked ? styles.dayChecked : styles.day}
                       data-id={item2.id}
                       onClick={toggleItem}
@@ -199,6 +209,33 @@ const Calendar = () => {
             </div>
           );
         })}
+      </div>
+
+      <div className={styles.calculatePanel}>
+        <div className={styles.calculatePanelItem}>
+          <p className={styles.calculateNumber}>{`${successRate}%`}</p>
+          <p className={styles.calculateText}>
+            SUCCESS <br /> RATE
+          </p>
+        </div>
+        <div className={styles.calculatePanelItem}>
+          <p className={styles.calculateNumber}>{countDayMet}</p>
+          <p className={styles.calculateText}>
+            GOALS <br /> MET
+          </p>
+        </div>
+        <div className={styles.calculatePanelItem}>
+          <p className={styles.calculateNumber}>3</p>
+          <p className={styles.calculateText}>
+            CURRENT <br /> STREAK
+          </p>
+        </div>
+        <div className={styles.calculatePanelItem}>
+          <p className={styles.calculateNumber}>6</p>
+          <p className={styles.calculateText}>
+            BEST <br /> STREAK
+          </p>
+        </div>
       </div>
     </div>
   );
