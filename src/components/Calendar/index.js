@@ -10,7 +10,7 @@ import "./animation.css";
 
 const MAX_NUMBER_DESKTOP = 35;
 
-const Calendar = () => {
+const Calendar = ({ pushNumber }) => {
   const [currentMonth, setMonth] = useState(months[new Date().getMonth()]);
   const [currentMonthNumber, setMonthNumber] = useState(new Date().getMonth());
   const [yearNumber, setYear] = useState(new Date().getFullYear());
@@ -77,6 +77,7 @@ const Calendar = () => {
     defineLeapYear();
     changeSuccessRate(0);
     setCountDayMet(0);
+    pushNumber('clear')
 
     const numbers = e.target.parentElement.parentElement.children[1];
     const oldStyle = numbers.className.replace("calendar-render", "");
@@ -107,6 +108,7 @@ const Calendar = () => {
     defineLeapYear();
     changeSuccessRate(0);
     setCountDayMet(0);
+    pushNumber('clear')
 
     const numbers = e.target.parentElement.parentElement.children[1];
     const oldStyle = numbers.className;
@@ -164,6 +166,11 @@ const Calendar = () => {
     });
 
     pushArrayOfDays(array);
+
+    pushNumber({
+      name: countDayMet,
+      pv: successRate,
+    });
   };
 
   return (
